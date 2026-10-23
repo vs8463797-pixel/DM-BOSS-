@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>State Lottery Results & Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+
+    <!-- Header -->
+    <header class="bg-blue-900 text-white shadow-md">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold">StateLotteryResults.in</h1>
+            <button onclick="toggleAdmin()" class="bg-yellow-400 text-blue-900 px-3 py-1 rounded text-xs font-bold">Admin Panel</button>
+        </div>
+    </header>
+
+    <!-- Admin Panel Modal/Section (Hidden by default) -->
+    <div id="admin-section" class="hidden bg-gray-200 p-6 border-b border-gray-300">
+        <div class="container mx-auto max-w-lg bg-white p-6 rounded shadow">
+            <h2 class="text-lg font-bold mb-4 text-blue-900">Admin Panel: Naya Result Dalein</h2>
+            <form id="admin-form" onsubmit="submitResult(event)" class="space-y-3">
+                <input type="text" id="state_name" placeholder="State Name (jaise: Nagaland)" class="w-full border p-2 rounded" required>
+                <input type="text" id="draw_name" placeholder="Draw Name (jaise: DEAR MORNING)" class="w-full border p-2 rounded" required>
+                <input type="text" id="prize_number" placeholder="1st Prize Number (jaise: 85A 43210)" class="w-full border p-2 rounded" required>
+                <input type="text" id="draw_time" placeholder="Draw Time (jaise: 1:00 PM)" class="w-full border p-2 rounded" required>
+                <input type="date" id="date" class="w-full border p-2 rounded" required>
+                <button type="submit" class="w-full bg-blue-600 text-white p-2 rounded font-bold">Result Publish Karein</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Results Section -->
+    <main class="container mx-auto px-4 py-8">
+        <h2 class="text-2xl font-bold text-center mb-6">Live Government Lottery Results</h2>
+        <div id="results-container" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Data dynamically yahan load hoga -->
+        </div>
+    </main>
+
+    <script>
+        function toggleAdmin() {
+            let section = document.getElementById('admin-section');
+            section.classList.toggle('hidden');
+        }
+
+        async function loadResults() {
+            let res = await fetch('/api/results');
+            let data = await res.json();
+            let container = document.getElementById('results-container');
+            container.innerHTML = '';
+            data.data.forEach(item => {
+                container.innerHTML += `
+                    <div class="bg-white rounded-xl shadow p-5 border">
+                        <h3 class="font-bold text-lg text-blue-700">${item.state_name}</h3>
+                        <p class="text-sm text-gray-500">Draw: ${item.draw_name}</p>
+                        <div class="bg-gray-100 p-3 rounded text-center my-3">
+                            <span class="text-xs text-gray-500 block">1st Prize</span>
+                            <span class="text-xl font-extrabold text-blue-600">${item.prize_number}</span>
+                        </div>
+                        <p class="text-xs text-gray-400 text-right">Time: ${item.draw_time} | Date: ${item.date}</p>
+                    </div>
+                `;
+            });
+        }
+
+        async function submitResult(e) {
+            e.preventDefault();
+            let payload = {
+                state_name: document.getElementById('state_name').value,
+                draw_name: document.getElementById('draw_name').value,
+                prize_number: document.getElementById('prize_number').value,
+                draw_time: document.getElementById('draw_time').value,
+                date: document.getElementById('date').value
+            };
+
+            let res = await fetch('/api/update-result', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if(res.ok) {
+                alert('Result successfully update ho gaya!');
+                document.getElementById('admin-form').reset();
+                toggleAdmin();
+                loadResults();
+            } else {
+                alert('Kuch error aa gaya.');
+            }
+        }
+
+        loadResults();
+    </script>
+</body>
+</html>
