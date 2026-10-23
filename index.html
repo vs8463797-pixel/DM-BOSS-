@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DM BOSS - Live State Lottery Results & Secure Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-900 text-gray-100 font-sans">
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 border-b border-purple-800 shadow-xl sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-yellow-500 text-slate-900 p-2.5 rounded-xl shadow-lg font-black text-xl flex items-center justify-center">
+                    <i class="fa-solid fa-crown"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-amber-200">DM BOSS</h1>
+                    <p class="text-[10px] text-purple-300 tracking-widest uppercase font-semibold">Official State Lottery Results</p>
+                </div>
+            </div>
+            <button onclick="checkAdminAccess()" class="bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-400 text-slate-950 px-4 py-2 rounded-lg text-xs font-bold shadow-lg transition flex items-center space-x-1.5">
+                <i class="fa-solid fa-lock"></i>
+                <span>Admin Login</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Admin Panel Modal/Section (Protected) -->
+    <div id="admin-section" class="hidden bg-slate-800 border-b border-purple-700/50 p-6 shadow-2xl">
+        <div class="container mx-auto max-w-md bg-slate-900 p-6 rounded-2xl border border-purple-500/30">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-base font-bold text-yellow-400 flex items-center space-x-2">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>Secure Admin Panel</span>
+                </h2>
+                <button onclick="logoutAdmin()" class="text-xs text-red-400 hover:underline">Logout</button>
+            </div>
+            <form id="admin-form" onsubmit="submitResult(event)" class="space-y-3.5 text-sm">
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Rajya ka Naam</label>
+                    <input type="text" id="state_name" placeholder="Jaise: Nagaland State Lottery" class="w-full bg-slate-800 border border-slate-700 text-white p-2.5 rounded-lg focus:outline-none focus:border-yellow-500" required>
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Draw ka Naam</label>
+                    <input type="text" id="draw_name" placeholder="Jaise: DEAR SUNNY MORNING" class="w-full bg-slate-800 border border-slate-700 text-white p-2.5 rounded-lg focus:outline-none focus:border-yellow-500" required>
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">1st Prize Number</label>
+                    <input type="text" id="prize_number" placeholder="Jaise: 85A 43210" class="w-full bg-slate-800 border border-slate-700 text-white p-2.5 rounded-lg focus:outline-none focus:border-yellow-500 font-bold text-yellow-400" required>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Samay (Time)</label>
+                        <input type="text" id="draw_time" placeholder="Jaise: 1:00 PM" class="w-full bg-slate-800 border border-slate-700 text-white p-2.5 rounded-lg focus:outline-none focus:border-yellow-500" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Dinank (Date)</label>
+                        <input type="date" id="date" class="w-full bg-slate-800 border border-slate-700 text-white p-2.5 rounded-lg focus:outline-none focus:border-yellow-500" required>
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-400 text-slate-950 font-extrabold p-3 rounded-lg shadow-lg transition mt-2">
+                    Publish Result
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Hero & Results Section -->
+    <main class="container mx-auto px-4 py-8 max-w-5xl">
+        <div class="text-center mb-10">
+            <span class="bg-purple-900/60 text-purple-300 border border-purple-700/50 text-xs px-3 py-1 rounded-full font-medium inline-block mb-3">
+                <i class="fa-solid fa-bolt text-yellow-400 mr-1"></i> Live & Instant Updated Portal
+            </span>
+            <h2 class="text-3xl md:text-4xl font-black text-white tracking-tight">DM BOSS Live Results</h2>
+            <p class="text-xs md:text-sm text-gray-400 mt-2">Har rajya aur unke draw ke saamne unke official parinam dekhein</p>
+        </div>
+
+        <!-- Professional Results Table Container -->
+        <div class="bg-slate-800/80 backdrop-blur rounded-2xl shadow-2xl border border-slate-700 overflow-hidden">
+            <!-- Table Header -->
+            <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-gray-300 text-xs uppercase tracking-wider font-bold grid grid-cols-12 p-4 text-center border-b border-slate-700">
+                <div class="col-span-4 text-left pl-3">State & Draw Name</div>
+                <div class="col-span-3">Draw Time</div>
+                <div class="col-span-3">1st Prize Number</div>
+                <div class="col-span-2">Date</div>
+            </div>
+            
+            <!-- Table Body -->
+            <div id="results-table-body" class="divide-y divide-slate-700/50 text-sm">
+                <!-- Dynamic rows -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 text-gray-500 text-xs py-8 mt-16 border-t border-slate-800 text-center">
+        <div class="container mx-auto px-4 space-y-2">
+            <p class="text-gray-400 font-medium">DM BOSS - Legal State Government Authorized Lottery Results Portal</p>
+            <p>&copy; 2026 DM BOSS. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Yahan aap apna secret password set kar sakte hain (abhi ke liye password 'admin123' hai)
+        const ADMIN_PASSWORD = "admin123";
+
+        function checkAdminAccess() {
+            let pass = prompt("Admin Password darj karein:");
+            if (pass === ADMIN_PASSWORD) {
+                document.getElementById('admin-section').classList.remove('hidden');
+                alert("Login Safal! Ab aap result update kar sakte hain.");
+            } else if (pass !== null) {
+                alert("Galat Password! Access denied.");
+            }
+        }
+
+        function logoutAdmin() {
+            document.getElementById('admin-section').classList.add('hidden');
+            alert("Aap logout ho chuke hain.");
+        }
+
+        async function loadResults() {
+            try {
+                let res = await fetch('/api/results');
+                let data = await res.json();
+                let container = document.getElementById('results-table-body');
+                container.innerHTML = '';
+                
+                if(data.data.length === 0) {
+                    container.innerHTML = `<div class="p-6 text-center text-gray-500">Filhal koi result uplabdh nahi hai.</div>`;
+                    return;
+                }
+
+                data.data.forEach(item => {
+                    container.innerHTML += `
+                        <div class="grid grid-cols-12 p-4 items-center hover:bg-slate-750 transition text-center">
+                            <div class="col-span-4 text-left pl-3">
+                                <span class="font-extrabold text-yellow-400 block text-base">${item.state_name}</span>
+                                <span class="text-xs text-purple-300 font-medium">${item.draw_name}</span>
+                            </div>
+                            <div class="col-span-3">
+                                <span class="bg-slate-700 text-cyan-300 border border-slate-600 px-2.5 py-1 rounded-lg text-xs font-semibold">${item.draw_time}</span>
+                            </div>
+                            <div class="col-span-3">
+                                <span class="bg-emerald-950/80 text-emerald-400 border border-emerald-600/50 font-black px-3.5 py-1.5 rounded-xl text-base md:text-lg tracking-widest inline-block shadow-inner">${item.prize_number}</span>
+                            </div>
+                            <div class="col-span-2 text-xs text-gray-400 font-medium">
+                                ${item.date}
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (err) {
+                console.error("Error loading results:", err);
+            }
+        }
+
+        async function submitResult(e) {
+            e.preventDefault();
+            let payload = {
+                state_name: document.getElementById('state_name').value,
+                draw_name: document.getElementById('draw_name').value,
+                prize_number: document.getElementById('prize_number').value,
+                draw_time: document.getElementById('draw_time').value,
+                date: document.getElementById('date').value
+            };
+
+            let res = await fetch('/api/update-result', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if(res.ok) {
+                alert('Result DM BOSS par safaltapoorvak update ho gaya!');
+                document.getElementById('admin-form').reset();
+                document.getElementById('admin-section').classList.add('hidden');
+                loadResults();
+            } else {
+                alert('Kuch error aa gaya.');
+            }
+        }
+
+        loadResults();
+    </script>
+</body>
+</html>
